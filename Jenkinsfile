@@ -2,6 +2,6 @@
 
 @Library('MicroserviceBuilder') _
 microserviceBuilderPipeline {
-  image = 'flightservice-java'
+  image = 'acmeair-flightservice-java'
   test = 'false'
 }

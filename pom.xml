@@ -12,11 +12,11 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>flightservice-java</groupId>
+	<groupId>acmeair-flightservice-java</groupId>
 	<version>2.0.0-SNAPSHOT</version>
-	<artifactId>flightservice-java</artifactId>
+	<artifactId>acmeair-flightservice-java</artifactId>
 	<packaging>war</packaging>
-	<name>Flight Service :: Java</name>
+	<name>AcmeAir :: Flight Service :: Java</name>
 
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>

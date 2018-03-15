@@ -1,20 +1,20 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: flightservice
+  name: acmeair-flightservice
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        name: flight-deployment
+        name: acmeair-flight-deployment
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "9080"
     spec:
       containers:
-      - name: flightservice-java
-        image: flightservice-java:latest
+      - name: acmeair-flightservice-java
+        image: acmeair-flightservice-java:latest
         ports:
           - containerPort: 9080
           - containerPort: 9443
@@ -25,9 +25,28 @@ spec:
         - name: PASSWORD
           value: password
         - name: MONGO_HOST
-          value: flight-db
+          value: acmeair-flight-db
         - name: SECURE_SERVICE_CALLS
           value: 'true'
+        - name: MB_KEYSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mb-keystore-password
+              key: password
+        - name: MB_TRUSTSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mb-truststore-password
+              key: password
+        volumeMounts:
+          - name: keystores
+            mountPath: /etc/wlp/config/keystore
+            readOnly: true
+          - name: truststores
+            mountPath: /etc/wlp/config/truststore
+            readOnly: true
+          - name: liberty-config
+            mountPath: /config/configDropins
         readinessProbe:
           httpGet:
             path: /health
@@ -40,17 +59,32 @@ spec:
             port: 9080
           initialDelaySeconds: 120
           periodSeconds: 15
+      volumes:
+        - name: keystores
+          secret:
+            secretName: mb-keystore
+        - name: truststores
+          secret:
+            secretName: mb-truststore
+        - name: liberty-config
+          configMap:
+            name: liberty-logging-config
+            items:
+              - key: keystore.xml
+                path: defaults/keystore.xml
+              - key: logging.xml
+                path: defaults/logging.xml
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: flight-service
+  name: acmeair-flight-service
   namespace: default
 spec:
   ports:
     - port: 9080
   selector:
-    name: flight-deployment
+    name: acmeair-flight-deployment
 ---
 ##### Flight Database #####
 apiVersion: v1
@@ -58,8 +92,8 @@ kind: Service
 metadata:
   creationTimestamp: null
   labels:
-    service: flight-db
-  name: flight-db
+    service: acmeair-flight-db
+  name: acmeair-flight-db
 spec:
   ports:
   - name: "27017"
@@ -67,7 +101,7 @@ spec:
     protocol: TCP
     targetPort: 27017
   selector:
-    service: flight-db
+    service: acmeair-flight-db
 status:
   loadBalancer: {}
 ---
@@ -75,7 +109,7 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   creationTimestamp: null
-  name: flight-db
+  name: acmeair-flight-db
 spec:
   replicas: 1
   strategy: {}
@@ -83,11 +117,11 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
-        service: flight-db
+        service: acmeair-flight-db
     spec:
       containers:
       - image: mongo
-        name: flight-db
+        name: acmeair-flight-db
         ports:
         - containerPort: 27017
           protocol: TCP

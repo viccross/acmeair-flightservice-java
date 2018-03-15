@@ -4,8 +4,8 @@ kind: Service
 metadata:
   creationTimestamp: null
   labels:
-    service: flight-db
-  name: flight-db
+    service: acmeair-flight-db
+  name: acmeair-flight-db
 spec:
   ports:
   - name: "27017"
@@ -13,7 +13,7 @@ spec:
     protocol: TCP
     targetPort: 27017
   selector:
-    service: flight-db
+    service: acmeair-flight-db
 status:
   loadBalancer: {}
 ---
@@ -21,7 +21,7 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   creationTimestamp: null
-  name: flight-db
+  name: acmeair-flight-db
 spec:
   replicas: 1
   strategy: {}
@@ -29,11 +29,11 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
-        service: flight-db
+        service: acmeair-flight-db
     spec:
       containers:
       - image: mongo
-        name: flight-db
+        name: acmeair-flight-db
         ports:
         - containerPort: 27017
           protocol: TCP
