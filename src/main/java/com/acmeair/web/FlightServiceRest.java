@@ -117,7 +117,7 @@ public class FlightServiceRest {
   }
 
   @GET
-  public Response checkStatus() {
+  public Response status() {
     return Response.ok("OK").build();        
   } 
   
