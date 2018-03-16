@@ -48,7 +48,9 @@ metadata:
   namespace: default
 spec:
   ports:
-    - port: 9080
+  - protocol: TCP
+    port: 9080
+    name: http
   selector:
     name: acmeair-flight-deployment
 ---
