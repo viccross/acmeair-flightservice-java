@@ -50,6 +50,7 @@ public class FlightLoader {
       logger.info("Start loading flights");
       long start = System.currentTimeMillis();
       flightService.dropFlights();
+      flightService.invalidateFlightDataCaches();
       loadFlights();
       long stop = System.currentTimeMillis();
       logger.info("Finished loading in " + (stop - start) / 1000.0 + " seconds");

@@ -243,4 +243,13 @@ public abstract class FlightService {
 
 
   public abstract boolean isPopulated();
+  
+  public void invalidateFlightDataCaches() {
+    if (useFlightDataRelatedCaching) {
+     originAndDestPortToSegmentCache.clear(); 
+     flightSegmentAndDataToFlightCache.clear();
+     flightPKtoFlightCache.clear();
+     flightSegmentIdtoRewardsCache.clear();
+    }
+  }
 }
