@@ -55,8 +55,6 @@ public class FlightServiceRest {
   /**
    * Get flights.
    */
-  // Had to change Dates to strings + extra processing below because 
-  // Payara did not handle the Dates well.
 
   @POST
   @Path("/queryflights")
