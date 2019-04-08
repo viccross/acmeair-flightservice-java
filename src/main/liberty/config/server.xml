@@ -25,5 +25,4 @@
 	<webApplication name="acmeair-flightservice"
 		location="acmeair-flightservice-java-2.0.0-SNAPSHOT.war"
 		contextRoot="/" />
-        <keyStore id="defaultKeyStore" password="secret" location="/config/resources/security/key.jks"/>
 </server>
