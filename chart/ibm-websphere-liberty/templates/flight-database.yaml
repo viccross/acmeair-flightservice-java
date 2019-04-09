@@ -32,7 +32,7 @@ spec:
         service: acmeair-flight-db
     spec:
       containers:
-      - image: mongo
+      - image: "{{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}"
         name: acmeair-flight-db
         ports:
         - containerPort: 27017
