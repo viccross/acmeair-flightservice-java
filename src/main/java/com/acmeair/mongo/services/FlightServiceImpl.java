@@ -1,18 +1,18 @@
 /*******************************************************************************
-* Copyright (c) 2015 IBM Corp.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*******************************************************************************/
+ * Copyright (c) 2015 IBM Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *******************************************************************************/
 
 package com.acmeair.mongo.services;
 
@@ -52,19 +52,19 @@ public class FlightServiceImpl extends FlightService implements  MongoConstants 
 
   private static final Logger logger = Logger.getLogger(FlightServiceImpl.class.getName()); 
   private static final JsonReaderFactory factory = Json.createReaderFactory(null);
-  
+
   private MongoCollection<Document> flight;
   private MongoCollection<Document> flightSegment;
   private MongoCollection<Document> airportCodeMapping;
-  
+
   private Boolean isPopulated = false;
-  
+
   @Inject
   KeyGenerator keyGenerator;
 
   @Inject
   ConnectionManager connectionManager;
-  
+
   /**
    * Init mongo db.
    */
@@ -78,19 +78,19 @@ public class FlightServiceImpl extends FlightService implements  MongoConstants 
 
   @Override
   public Long countFlights() {
-    return flight.count();
+    return flight.countDocuments();
   }
-  
+
   @Override
   public Long countFlightSegments() {
-    return flightSegment.count();
+    return flightSegment.countDocuments();
   }
-  
+
   @Override
   public Long countAirports() {
-    return airportCodeMapping.count();
+    return airportCodeMapping.countDocuments();
   }
-  
+
   protected String getFlight(String flightId, String segmentId) {
     return flight.find(eq("_id", flightId)).first().toJson();
   }
@@ -99,7 +99,7 @@ public class FlightServiceImpl extends FlightService implements  MongoConstants 
   protected  String getFlightSegment(String fromAirport, String toAirport) {
     try {
       return flightSegment.find(new BasicDBObject("originPort", fromAirport)
-              .append("destPort", toAirport)).first().toJson();
+          .append("destPort", toAirport)).first().toJson();
     } catch (java.lang.NullPointerException e) {
       if (logger.isLoggable(Level.FINE)) {
         logger.fine("getFlghtSegment returned no flightSegment available");
@@ -112,25 +112,25 @@ public class FlightServiceImpl extends FlightService implements  MongoConstants 
   protected  Long getRewardMilesFromSegment(String segmentId) {
     try {
       String segment = flightSegment.find(new BasicDBObject("_id", segmentId)).first().toJson();
-            
+
       JsonReader jsonReader = factory.createReader(new StringReader(segment));
       JsonObject segmentJson = jsonReader.readObject();
       jsonReader.close();
-            
+
       return segmentJson.getJsonNumber("miles").longValue();
-            
+
     } catch (java.lang.NullPointerException e) {
       if (logger.isLoggable(Level.FINE)) {
         logger.fine("getFlghtSegment returned no flightSegment available");
       }
-            
+
     } catch (Exception e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
     return null;
   }
-  
+
   @Override
   protected  List<String> getFlightBySegment(String segment, Date deptDate) {
     try {
@@ -142,15 +142,15 @@ public class FlightServiceImpl extends FlightService implements  MongoConstants 
       if (deptDate != null) {
         if (logger.isLoggable(Level.FINE)) {
           logger.fine("getFlghtBySegment Search String : " 
-                  + new BasicDBObject("flightSegmentId", segmentJson.getString("_id"))
-                  .append("scheduledDepartureTime", deptDate).toJson());
+              + new BasicDBObject("flightSegmentId", segmentJson.getString("_id"))
+              .append("scheduledDepartureTime", deptDate).toJson());
         }
         cursor = flight.find(new BasicDBObject("flightSegmentId", segmentJson.getString("_id"))
-                .append("scheduledDepartureTime", deptDate)).iterator();
+            .append("scheduledDepartureTime", deptDate)).iterator();
       } else {
         cursor = flight.find(eq("flightSegmentId", segmentJson.getString("_id"))).iterator();
       }
-      
+
       List<String> flights =  new ArrayList<String>();
       try {
         while (cursor.hasNext()) {
@@ -159,7 +159,7 @@ public class FlightServiceImpl extends FlightService implements  MongoConstants 
           if (logger.isLoggable(Level.FINE)) {
             logger.fine("getFlghtBySegment Before : " + tempDoc.toJson());
           }
-          
+
           Date deptTime = (Date)tempDoc.get("scheduledDepartureTime");
           Date arvTime = (Date)tempDoc.get("scheduledArrivalTime");
           tempDoc.remove("scheduledDepartureTime");
@@ -167,13 +167,14 @@ public class FlightServiceImpl extends FlightService implements  MongoConstants 
           tempDoc.remove("scheduledArrivalTime");
           tempDoc.append("scheduledArrivalTime", arvTime.toString());
           tempDoc.append("flightSegment", JSON.parse(segment));
-          
+
+
           if (logger.isLoggable(Level.FINE)) {
             logger.fine("getFlghtBySegment after : " + tempDoc.toJson());
           }
-          
+
           flights.add(tempDoc.toJson());
-         
+
         }
       } finally {
         cursor.close();
@@ -190,7 +191,7 @@ public class FlightServiceImpl extends FlightService implements  MongoConstants 
   @Override
   public void storeAirportMapping(AirportCodeMapping mapping) {
     Document airportDoc = new Document("_id", mapping.getAirportCode())
-              .append("airportName", mapping.getAirportName());
+        .append("airportName", mapping.getAirportName());
     airportCodeMapping.insertOne(airportDoc);
   }
 
@@ -201,24 +202,24 @@ public class FlightServiceImpl extends FlightService implements  MongoConstants 
 
   @Override
   public void createNewFlight(String flightSegmentId,
-          Date scheduledDepartureTime, Date scheduledArrivalTime,
-          int firstClassBaseCost, int economyClassBaseCost,
-          int numFirstClassSeats, int numEconomyClassSeats,
-          String airplaneTypeId) {
+      Date scheduledDepartureTime, Date scheduledArrivalTime,
+      int firstClassBaseCost, int economyClassBaseCost,
+      int numFirstClassSeats, int numEconomyClassSeats,
+      String airplaneTypeId) {
     String id = keyGenerator.generate().toString();
     Document flightDoc = new Document("_id", id)
-            .append("firstClassBaseCost", firstClassBaseCost)
-            .append("economyClassBaseCost", economyClassBaseCost)
-            .append("numFirstClassSeats", numFirstClassSeats)
-            .append("numEconomyClassSeats", numEconomyClassSeats)
-            .append("airplaneTypeId", airplaneTypeId)
-            .append("flightSegmentId", flightSegmentId)
-            .append("scheduledDepartureTime", scheduledDepartureTime)
-            .append("scheduledArrivalTime", scheduledArrivalTime);
+        .append("firstClassBaseCost", firstClassBaseCost)
+        .append("economyClassBaseCost", economyClassBaseCost)
+        .append("numFirstClassSeats", numFirstClassSeats)
+        .append("numEconomyClassSeats", numEconomyClassSeats)
+        .append("airplaneTypeId", airplaneTypeId)
+        .append("flightSegmentId", flightSegmentId)
+        .append("scheduledDepartureTime", scheduledDepartureTime)
+        .append("scheduledArrivalTime", scheduledArrivalTime);
 
     flight.insertOne(flightDoc);
   }
-  
+
   @Override 
   public void storeFlightSegment(String flightSeg) {
     try {
@@ -226,9 +227,9 @@ public class FlightServiceImpl extends FlightService implements  MongoConstants 
       JsonObject flightSegJson = jsonReader.readObject();
       jsonReader.close();
       storeFlightSegment(flightSegJson.getString("_id"), 
-              flightSegJson.getString("originPort"), 
-              flightSegJson.getString("destPort"), 
-              flightSegJson.getInt("miles"));
+          flightSegJson.getString("originPort"), 
+          flightSegJson.getString("destPort"), 
+          flightSegJson.getInt("miles"));
     } catch (Exception e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -238,9 +239,9 @@ public class FlightServiceImpl extends FlightService implements  MongoConstants 
   @Override 
   public void storeFlightSegment(String flightName, String origPort, String destPort, int miles) {
     Document flightSegmentDoc = new Document("_id", flightName)
-            .append("originPort", origPort)
-            .append("destPort", destPort)
-            .append("miles", miles);
+        .append("originPort", origPort)
+        .append("destPort", destPort)
+        .append("miles", miles);
 
     flightSegment.insertOne(flightSegmentDoc);
   }
@@ -262,12 +263,17 @@ public class FlightServiceImpl extends FlightService implements  MongoConstants 
     if (isPopulated) {
       return true;
     }
-        
-    if (flight.count() > 0) {
+
+    if (flight.countDocuments() > 0) {
       isPopulated = true;
       return true;
     } else {
       return false;
     }
+  }
+
+  @Override
+  public boolean isConnected() {
+    return (flight.countDocuments() >= 0);
   }
 }
