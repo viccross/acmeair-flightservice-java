@@ -16,20 +16,9 @@
 
 package com.acmeair.web;
 
-import com.acmeair.config.FlightConfiguration;
-import com.acmeair.config.FlightLoaderRest;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
 @ApplicationPath("/")
 public class FlightServiceApp extends Application {
-  public Set<Class<?>> getClasses() {
-    return new HashSet<Class<?>>(Arrays.asList(FlightServiceRest.class,
-            FlightConfiguration.class, FlightLoaderRest.class,HealthCheckRest.class));
-  }
 }

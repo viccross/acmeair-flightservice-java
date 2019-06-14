@@ -252,4 +252,6 @@ public abstract class FlightService {
      flightSegmentIdtoRewardsCache.clear();
     }
   }
+
+  public abstract boolean isConnected();
 }
