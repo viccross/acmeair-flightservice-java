@@ -10,8 +10,15 @@ ssl:
 
 ingress:
   enabled: true
-  rewriteTarget: "/"
-  path: "/flight"
+  rewriteTarget: "/$2"
+  path: "/flight(/|$)(.*)"
+  host: ""
+  secretName: ""
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/connection-proxy-header: "keep-alive"
+    ingress.kubernetes.io/ssl-redirect: "false"
+    ingress.kubernetes.io/connection-proxy-header: "keep-alive"
 
 env:
   jvmArgs: "-DMONGO_HOST=acmeair-flight-db"
