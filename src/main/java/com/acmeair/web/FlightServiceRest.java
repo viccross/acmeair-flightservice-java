@@ -46,9 +46,7 @@ public class FlightServiceRest {
 
   @Inject
   private FlightService flightService;
-
  
-
   private static final JsonReaderFactory jsonReaderFactory = Json.createReaderFactory(null);
   private static final JsonBuilderFactory jsonObjectFactory  = Json.createBuilderFactory(null);
 
@@ -60,7 +58,7 @@ public class FlightServiceRest {
   @Path("/queryflights")
   @Consumes({"application/x-www-form-urlencoded"})
   @Produces("text/plain")
-  @Timed(name = "com.acmeair.web.FlightServiceRest.getTripFlights", tags = "app=flightservice-java")
+  @Timed(name = "com.acmeair.web.FlightServiceRest.getTripFlights", tags = "app=acmeair-flightservice-java")
   public String getTripFlights(
       @FormParam("fromAirport") String fromAirport,
       @FormParam("toAirport") String toAirport,
@@ -89,7 +87,7 @@ public class FlightServiceRest {
   @Consumes({"application/x-www-form-urlencoded"})
   @Produces("application/json")
   @Timed(name = "com.acmeair.web.FlightServiceRest.getRewardsMiles", 
-  tags = "app=flightservice-java")
+  tags = "app=acmeair-flightservice-java")
   public MilesResponse getRewardMiles(
       @FormParam("flightSegment") String segmentId
       ) {
