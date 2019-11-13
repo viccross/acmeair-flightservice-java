@@ -90,6 +90,11 @@ spec:
       labels:
         name: acmeair-flight-db
     spec:
+      volumes:
+        - name: acmeair-flight-db-1
+          emptyDir: {}
+        - name: acmeair-flight-db-2
+          emptyDir: {}
       containers:
       - image: mongo
         name: acmeair-flight-db
@@ -97,5 +102,10 @@ spec:
         - containerPort: 27017
           protocol: TCP
         resources: {}
+        volumeMounts:
+          - name: acmeair-flight-db-1
+            mountPath: /data/configdb
+          - name: acmeair-flight-db-2
+            mountPath: /data/db
       restartPolicy: Always
 status: {}
