@@ -1,9 +1,12 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: acmeair-flightservice
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      name: acmeair-flight-deployment
   template:
     metadata:
       labels:
@@ -67,23 +70,26 @@ spec:
     protocol: TCP
     targetPort: 27017
   selector:
-    service: acmeair-flight-db
+    name: acmeair-flight-db
 status:
   loadBalancer: {}
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   creationTimestamp: null
   name: acmeair-flight-db
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      name: acmeair-flight-db
   strategy: {}
   template:
     metadata:
       creationTimestamp: null
       labels:
-        service: acmeair-flight-db
+        name: acmeair-flight-db
     spec:
       containers:
       - image: mongo

@@ -10,8 +10,7 @@ ssl:
 
 ingress:
   enabled: true
-  rewriteTarget: "/$2"
-  path: "/flight(/|$)(.*)"
+  path: "/flight
   host: ""
   secretName: ""
   annotations:
