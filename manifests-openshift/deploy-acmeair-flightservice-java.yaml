@@ -1,9 +1,12 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: acmeair-flightservice
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      name: acmeair-flight-deployment
   template:
     metadata:
       labels:
@@ -14,11 +17,11 @@ spec:
     spec:
       containers:
       - name: acmeair-flightservice-java
-        image: IMAGE_NAME
+        image: acmeair-flightservice-java:latest
         ports:
           - containerPort: 9080
           - containerPort: 9443
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         env:
         - name: USERNAME
           value: admin
@@ -45,12 +48,9 @@ apiVersion: v1
 kind: Service
 metadata:
   name: acmeair-flight-service
-  namespace: default
 spec:
   ports:
-  - protocol: TCP
-    port: 9080
-    name: http
+    - port: 9080
   selector:
     name: acmeair-flight-deployment
 ---
@@ -69,24 +69,32 @@ spec:
     protocol: TCP
     targetPort: 27017
   selector:
-    service: acmeair-flight-db
+    name: acmeair-flight-db
 status:
   loadBalancer: {}
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   creationTimestamp: null
   name: acmeair-flight-db
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      name: acmeair-flight-db
   strategy: {}
   template:
     metadata:
       creationTimestamp: null
       labels:
-        service: acmeair-flight-db
+        name: acmeair-flight-db
     spec:
+      volumes:
+        - name: acmeair-flight-db-1
+          emptyDir: {}
+        - name: acmeair-flight-db-2
+          emptyDir: {}
       containers:
       - image: mongo
         name: acmeair-flight-db
@@ -94,5 +102,10 @@ spec:
         - containerPort: 27017
           protocol: TCP
         resources: {}
+        volumeMounts:
+          - name: acmeair-flight-db-1
+            mountPath: /data/configdb
+          - name: acmeair-flight-db-2
+            mountPath: /data/db
       restartPolicy: Always
 status: {}
