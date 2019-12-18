@@ -1,9 +1,12 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: acmeair-flightservice
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      name: acmeair-flight-deployment
   template:
     metadata:
       labels:
@@ -18,7 +21,7 @@ spec:
         ports:
           - containerPort: 9080
           - containerPort: 9443
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         env:
         - name: USERNAME
           value: admin
@@ -28,25 +31,6 @@ spec:
           value: acmeair-flight-db
         - name: SECURE_SERVICE_CALLS
           value: 'true'
-        - name: MB_KEYSTORE_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: mb-keystore-password
-              key: password
-        - name: MB_TRUSTSTORE_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: mb-truststore-password
-              key: password
-        volumeMounts:
-          - name: keystores
-            mountPath: /etc/wlp/config/keystore
-            readOnly: true
-          - name: truststores
-            mountPath: /etc/wlp/config/truststore
-            readOnly: true
-          - name: liberty-config
-            mountPath: /config/configDropins
         readinessProbe:
           httpGet:
             path: /health
@@ -59,27 +43,11 @@ spec:
             port: 9080
           initialDelaySeconds: 120
           periodSeconds: 15
-      volumes:
-        - name: keystores
-          secret:
-            secretName: mb-keystore
-        - name: truststores
-          secret:
-            secretName: mb-truststore
-        - name: liberty-config
-          configMap:
-            name: liberty-logging-config
-            items:
-              - key: keystore.xml
-                path: defaults/keystore.xml
-              - key: logging.xml
-                path: defaults/logging.xml
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: acmeair-flight-service
-  namespace: default
 spec:
   ports:
     - port: 9080
@@ -101,23 +69,26 @@ spec:
     protocol: TCP
     targetPort: 27017
   selector:
-    service: acmeair-flight-db
+    name: acmeair-flight-db
 status:
   loadBalancer: {}
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   creationTimestamp: null
   name: acmeair-flight-db
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      name: acmeair-flight-db
   strategy: {}
   template:
     metadata:
       creationTimestamp: null
       labels:
-        service: acmeair-flight-db
+        name: acmeair-flight-db
     spec:
       containers:
       - image: mongo
