@@ -30,20 +30,27 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
 public class FlightLoader {
-
-  private static final int MAX_FLIGHTS_PER_SEGMENT = 5;
-
-
+  
   @Inject
   FlightService flightService;
+  
+  @Inject 
+  @ConfigProperty(name = "NUM_DAYS_TO_LOAD", defaultValue = "5") 
+  private Integer numDaysToLoad;
 
   private static Logger logger = Logger.getLogger(FlightLoader.class.getName());
 
+  public String queryLoader() {
+    return numDaysToLoad.toString();
+  }
+  
   /**
    * Loads the db with flight info.
    */
-  public String loadFlightDb() {
+  public String loadFlightDb(int daysToLoad) {
     double length = 0;
     try {
 
@@ -51,14 +58,14 @@ public class FlightLoader {
       long start = System.currentTimeMillis();
       flightService.dropFlights();
       flightService.invalidateFlightDataCaches();
-      loadFlights();
+      loadFlights(daysToLoad);
       long stop = System.currentTimeMillis();
       logger.info("Finished loading in " + (stop - start) / 1000.0 + " seconds");
       length = (stop - start) / 1000.0;
     } catch (Exception e) {
       e.printStackTrace();
     }
-    return "Loaded flights in " + length + " seconds";
+    return "Loaded flights for " + daysToLoad + " days in " + length + " seconds";
   }
 
   public void dropFlights() {
@@ -69,7 +76,7 @@ public class FlightLoader {
   /**
    * Loads the db with flights.
    */
-  public void loadFlights() throws Exception {
+  public void loadFlights(int daysToLoad) throws Exception {
     InputStream csvInputStream = FlightLoader.class.getResourceAsStream("/META-INF/mileage.csv");
 
     LineNumberReader lnr = new LineNumberReader(new InputStreamReader(csvInputStream));
@@ -122,7 +129,8 @@ public class FlightLoader {
         String flightId = "AA" + flightNumber;
         flightService.storeFlightSegment(flightId, airportCode, toAirport, miles);
         Date now = new Date();
-        for (int daysFromNow = -1; daysFromNow < MAX_FLIGHTS_PER_SEGMENT; daysFromNow++) {
+                
+        for (int daysFromNow = -1; daysFromNow < daysToLoad; daysFromNow++) {
           Calendar c = Calendar.getInstance();
           c.setTime(now);
           c.set(Calendar.HOUR_OF_DAY, 0);

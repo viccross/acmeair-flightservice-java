@@ -19,9 +19,11 @@ package com.acmeair.config;
 import com.acmeair.loader.FlightLoader;
 
 import javax.inject.Inject;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 @Path("/loader")
@@ -31,10 +33,18 @@ public class FlightLoaderRest {
   private FlightLoader loader;
 
   @GET
+  @Path("/query")
+  @Produces("text/plain")
+  public Response queryLoader() {
+    String response = loader.queryLoader();
+    return Response.ok(response).build();
+  }
+  
+  @GET
   @Path("/load")
   @Produces("text/plain")
-  public Response loadDb() {
-    String response = loader.loadFlightDb();
+  public Response loadDb(@DefaultValue("5") @QueryParam("daysToLoad") int daysToLoad) {
+    String response = loader.loadFlightDb(daysToLoad);
     return Response.ok(response).build();
   }
 }
