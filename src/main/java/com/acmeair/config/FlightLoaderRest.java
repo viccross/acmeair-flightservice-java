@@ -33,6 +33,14 @@ public class FlightLoaderRest {
   private FlightLoader loader;
 
   @GET
+  @Path("/query")
+  @Produces("text/plain")
+  public Response queryLoader() {
+    String response = loader.queryLoader();
+    return Response.ok(response).build();
+  }
+  
+  @GET
   @Path("/load")
   @Produces("text/plain")
   public Response loadDb(@DefaultValue("5") @QueryParam("daysToLoad") int daysToLoad) {

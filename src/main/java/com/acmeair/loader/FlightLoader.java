@@ -30,13 +30,23 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
 public class FlightLoader {
   
   @Inject
   FlightService flightService;
+  
+  @Inject 
+  @ConfigProperty(name = "NUM_DAYS_TO_LOAD", defaultValue = "5") 
+  private Integer numDaysToLoad;
 
   private static Logger logger = Logger.getLogger(FlightLoader.class.getName());
 
+  public String queryLoader() {
+    return numDaysToLoad.toString();
+  }
+  
   /**
    * Loads the db with flight info.
    */
@@ -55,7 +65,7 @@ public class FlightLoader {
     } catch (Exception e) {
       e.printStackTrace();
     }
-    return "Loaded flights in " + length + " seconds";
+    return "Loaded flights for " + daysToLoad + " days in " + length + " seconds";
   }
 
   public void dropFlights() {
@@ -119,6 +129,7 @@ public class FlightLoader {
         String flightId = "AA" + flightNumber;
         flightService.storeFlightSegment(flightId, airportCode, toAirport, miles);
         Date now = new Date();
+                
         for (int daysFromNow = -1; daysFromNow < daysToLoad; daysFromNow++) {
           Calendar c = Calendar.getInstance();
           c.setTime(now);
