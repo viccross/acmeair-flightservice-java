@@ -7,7 +7,7 @@
       <version>RELEASE</version>
    </parent>
    <groupId>acmeair-flightservice-java</groupId>
-   <version>3.0</version>
+   <version>3.3</version>
    <artifactId>acmeair-flightservice-java</artifactId>
    <packaging>war</packaging>
    <name>acmeair-flightservice-java</name>
