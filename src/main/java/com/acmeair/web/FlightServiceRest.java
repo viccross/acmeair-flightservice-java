@@ -39,7 +39,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
-import org.eclipse.microprofile.metrics.annotation.Timed;
+import org.eclipse.microprofile.metrics.annotation.SimplyTimed;
 
 @Path("/")
 public class FlightServiceRest {
@@ -58,7 +58,7 @@ public class FlightServiceRest {
   @Path("/queryflights")
   @Consumes({"application/x-www-form-urlencoded"})
   @Produces("text/plain")
-  @Timed(name = "com.acmeair.web.FlightServiceRest.getTripFlights", tags = "app=acmeair-flightservice-java")
+  @SimplyTimed(name = "com.acmeair.web.FlightServiceRest.getTripFlights", tags = "app=acmeair-flightservice-java")
   public String getTripFlights(
       @FormParam("fromAirport") String fromAirport,
       @FormParam("toAirport") String toAirport,
@@ -86,7 +86,7 @@ public class FlightServiceRest {
   @Path("/getrewardmiles")
   @Consumes({"application/x-www-form-urlencoded"})
   @Produces("application/json")
-  @Timed(name = "com.acmeair.web.FlightServiceRest.getRewardsMiles", 
+  @SimplyTimed(name = "com.acmeair.web.FlightServiceRest.getRewardsMiles", 
   tags = "app=acmeair-flightservice-java")
   public MilesResponse getRewardMiles(
       @FormParam("flightSegment") String segmentId
