@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-
 package com.acmeair.web;
-
 
 import com.acmeair.service.FlightService;
 
 import java.io.StringReader;
 import java.text.ParseException;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -29,6 +26,7 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonReaderFactory;
 import javax.ws.rs.Consumes;
@@ -57,26 +55,21 @@ public class FlightServiceRest {
   @POST
   @Path("/queryflights")
   @Consumes({"application/x-www-form-urlencoded"})
-  @Produces("text/plain")
+  @Produces("application/json")
   @SimplyTimed(name = "com.acmeair.web.FlightServiceRest.getTripFlights", tags = "app=acmeair-flightservice-java")
-  public String getTripFlights(
+  public JsonObject getTripFlights(
       @FormParam("fromAirport") String fromAirport,
       @FormParam("toAirport") String toAirport,
-      @FormParam("fromDate") Date fromDate,
-      @FormParam("returnDate") Date returnDate,
+      @FormParam("fromDate") DateParam fromDate,
+      @FormParam("returnDate") DateParam returnDate,
       @FormParam("oneWay") boolean oneWay
       ) throws ParseException {
 
     if (!flightService.isPopulated()) {
       throw new RuntimeException("Flight DB has not been populated");
     }
-
-    // This is needed if the driver and SUT are in different time zones.
-    // Example, if your driver is set to CDT, and your SUT is a docker container defaulting to UTC.
-    Date fromDateZero = setHoursToZero(fromDate);
-    Date returnDateZero = setHoursToZero(returnDate);
-    
-    return getFlightOptions(fromAirport,toAirport,fromDateZero,returnDateZero,oneWay);
+        
+    return getFlightOptions(fromAirport,toAirport,fromDate.getDate(),returnDate.getDate(),oneWay);
   }
 
   /**
@@ -86,8 +79,7 @@ public class FlightServiceRest {
   @Path("/getrewardmiles")
   @Consumes({"application/x-www-form-urlencoded"})
   @Produces("application/json")
-  @SimplyTimed(name = "com.acmeair.web.FlightServiceRest.getRewardsMiles", 
-  tags = "app=acmeair-flightservice-java")
+  @SimplyTimed(name = "com.acmeair.web.FlightServiceRest.getRewardsMiles", tags = "app=acmeair-flightservice-java")
   public MilesResponse getRewardMiles(
       @FormParam("flightSegment") String segmentId
       ) {
@@ -101,7 +93,7 @@ public class FlightServiceRest {
     return Response.ok("OK").build();
   } 
 
-  private String getFlightOptions(String fromAirport, String toAirport, Date fromDate, 
+  private JsonObject getFlightOptions(String fromAirport, String toAirport, Date fromDate, 
       Date returnDate, boolean oneWay) {
 
     // Get list of toflights as Json Array
@@ -109,7 +101,7 @@ public class FlightServiceRest {
         toAirport, fromDate);
     JsonArray toFlightsJsonArray = convertFlightListToJsonArray(toFlights);
 
-    String options;
+    JsonObject options;
 
     if (oneWay) {
       options = jsonObjectFactory.createObjectBuilder()
@@ -121,7 +113,7 @@ public class FlightServiceRest {
                   .add("hasMoreOptions", false)
                   .add("pageSize", 10)))
           .add("tripLegs", 1)
-          .build().toString();
+          .build();
     } else { 
       // Get list of returnflights as Json Array
       List<String> retFlights = flightService.getFlightByAirportsAndDepartureDate(toAirport, 
@@ -143,7 +135,7 @@ public class FlightServiceRest {
                   .add("hasMoreOptions", false)
                   .add("pageSize", 10)))
           .add("tripLegs", 2)
-          .build().toString();
+          .build();
     }
 
     return options;
@@ -161,12 +153,5 @@ public class FlightServiceRest {
     jsonReader.close();
 
     return flightsJsonArray;
-  }
-  
-private Date setHoursToZero(Date date) {    
-    Calendar calendar=Calendar.getInstance();
-    calendar.setTime(date);
-    calendar.set(Calendar.HOUR_OF_DAY, 0);
-    return calendar.getTime();
-  }
+  }  
 }
