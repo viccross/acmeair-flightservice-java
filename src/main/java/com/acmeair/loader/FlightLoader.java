@@ -39,7 +39,7 @@ public class FlightLoader {
   
   @Inject 
   @ConfigProperty(name = "NUM_DAYS_TO_LOAD", defaultValue = "5") 
-  private Integer numDaysToLoad;
+  private Short numDaysToLoad;
 
   private static Logger logger = Logger.getLogger(FlightLoader.class.getName());
 
